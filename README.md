@@ -11,3 +11,4 @@ For more information, see the [course curriculum](https://nextjs.org/learn) on t
 4. Parallelize data fetching with JavaScript - where it made sense to do so.
 5. Implemented Streaming to prevent slow data requests from blocking your whole page, and to allow the user to start interacting with the UI without waiting for everything to load.
 6. Move data fetching down to the components that need it, thus isolating which parts of your routes should be dynamic in preparation for Partial Prerendering.
+7. Handled search and pagination with URL search parameters instead of client state.
