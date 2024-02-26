@@ -45,11 +45,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
         message: 'Missing Fields. Failed to Create Invoice.',
       };
     }
-    const { customerId, amount, status } = CreateInvoice.safeParse({
-        customerId: formData.get('customerId'),
-        amount: formData.get('amount'),
-        status: formData.get('status'),
-      });
+      const { customerId, amount, status } = validatedFields.data;
       const amountInCents = amount * 100;
       const date = new Date().toISOString().split('T')[0];
       try {
@@ -79,13 +75,8 @@ export async function updateInvoice(id: string, formData: FormData) {
         message: 'Missing Fields. Failed to Update Invoice.',
       };
     }
-  const { customerId, amount, status } = UpdateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
-  });
-
-  const amountInCents = amount * 100;
+    const { customerId, amount, status } = validatedFields.data;
+    const amountInCents = amount * 100;
   try {
     await sql`
     UPDATE invoices
