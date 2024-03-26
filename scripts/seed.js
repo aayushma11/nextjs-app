@@ -4,6 +4,8 @@ const {
   customers,
   revenue,
   users,
+  fieldwork_comment_groups,
+  fieldwork_comments,
 } = require('../app/lib/placeholder-data.js');
 const bcrypt = require('bcrypt');
 
@@ -160,6 +162,116 @@ async function seedRevenue(client) {
   }
 }
 
+async function seedFieldCommentGroup(client) {
+  try {
+    // Create the "field_comment_group" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS field_comment_group (
+        id SERIAL PRIMARY KEY,
+        research_id INT NOT NULL,
+        comment_group_type INT NOT NULL,
+        comment_group_name VARCHAR(20) NOT NULL,
+        is_internal BOOLEAN NOT NULL,
+        status INT NOT NULL,
+        created TIMESTAMP,
+        created_user INT NOT NULL,
+        modified TIMESTAMP,
+        modified_user INT NOT NULL
+      );
+    `;
+
+    console.log(`Created "field_comment_group" table`);
+
+    // Insert data into the "field_comment_group" table
+    const insertedData = await Promise.all(
+      fieldwork_comment_groups.map(
+        (item) => client.sql`
+          INSERT INTO field_comment_group (
+            research_id,
+            comment_group_type,
+            comment_group_name,
+            is_internal,
+            status,
+            created_user,
+            modified_user
+          )
+          VALUES (
+            ${item.research_id},
+            ${item.comment_group_type},
+            ${item.comment_group_name},
+            ${item.is_internal},
+            ${item.status},
+            ${item.created_user},
+            ${item.modified_user}
+          );
+        `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedData.length} records into field_comment_group`);
+
+    return {
+      createTable,
+      data: insertedData,
+    };
+  } catch (error) {
+    console.error('Error seeding field_comment_group:', error);
+    throw error;
+  }
+}
+
+async function seedFieldworkComment(client) {
+  try {
+    // Create the "fieldwork_comment" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS fieldwork_comment (
+        id SERIAL PRIMARY KEY,
+        fieldwork_comment_group_id INT NOT NULL,
+        user_name VARCHAR(20) NOT NULL,
+        status INT NOT NULL,
+        comment TEXT NOT NULL,
+        created TIMESTAMP,
+        created_user INT NOT NULL,
+        modified TIMESTAMP
+      );
+    `;
+
+    console.log(`Created "fieldwork_comment" table`);
+
+    // Insert data into the "fieldwork_comment" table
+    const insertedData = await Promise.all(
+      fieldwork_comments.map(
+        (item) => client.sql`
+          INSERT INTO fieldwork_comment (
+            fieldwork_comment_group_id,
+            user_name,
+            status,
+            comment,
+            created_user
+          )
+          VALUES (
+            ${item.fieldwork_comment_group_id},
+            ${item.user_name},
+            ${item.status},
+            ${item.comment},
+            ${item.created_user}
+          );
+        `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedData.length} records into fieldwork_comment`);
+
+    return {
+      createTable,
+      data: insertedData,
+    };
+  } catch (error) {
+    console.error('Error seeding fieldwork_comment:', error);
+    throw error;
+  }
+}
+
 async function main() {
   const client = await db.connect();
 
@@ -167,6 +279,8 @@ async function main() {
   await seedCustomers(client);
   await seedInvoices(client);
   await seedRevenue(client);
+  await seedFieldCommentGroup(client);
+  await seedFieldworkComment(client);
 
   await client.end();
 }
