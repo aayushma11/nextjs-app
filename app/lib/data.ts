@@ -9,7 +9,27 @@ import {
   Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
-import {unstable_noStore as noStore} from 'next/cache'
+import { unstable_noStore as noStore } from 'next/cache'
+
+// interface Comment {
+//   id: number;
+//   username: string;
+//   comment: string;
+//   commentstatus: number;
+//   modifiedat: Date | null;
+// }
+
+// interface Question {
+//   questionId: number;
+//   questionName: string;
+//   is_internal: boolean;
+//   questionstatus: number;
+//   comments: Comment[];
+// }
+
+// interface Result {
+//   questions: Question[];
+// }
 
 export async function fetchRevenue() {
   // Add noStore() here to prevent the response from being cached.
@@ -236,5 +256,67 @@ export async function getUser(email: string) {
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
+  }
+}
+
+export async function fetchFieldworkComments(researchId: number): Promise<Result> {
+  try {
+    const data = await sql<any>`
+      SELECT
+        field_comment_group.id AS questionId,
+        field_comment_group.comment_group_name AS questionName,
+        field_comment_group.is_internal,
+        field_comment_group.status AS questionStatus,
+        fieldwork_comment.id,
+        fieldwork_comment.user_name AS userName,
+        fieldwork_comment.comment,
+        fieldwork_comment.status AS commentStatus,
+        fieldwork_comment.modified AS modifiedAt
+      FROM
+      field_comment_group
+      JOIN
+      fieldwork_comment ON field_comment_group.id = fieldwork_comment.fieldwork_comment_group_id
+      WHERE
+      field_comment_group.research_id = ${researchId}
+      ORDER BY
+      fieldwork_comment.modified DESC`;
+
+    // const comments = data.rows;
+    // return comments;
+
+    const result: Result = { questions: [] };
+
+    data.rows.forEach((row: any) => {
+
+      let existingQuestion = result.questions.find(q => q.questionId === row.questionid);
+
+      const comment: Comment = {
+        id: row.commentId,
+        username: row.username,
+        comment: row.comment,
+        commentstatus: row.commentstatus,
+        modifiedat: row.modifiedat
+      };
+
+      if (!existingQuestion) {
+        // If question does not exist, create a new one
+        const newQuestion: Question = {
+          questionId: row.questionid,
+          questionName: row.questionname,
+          is_internal: row.is_internal,
+          questionstatus: row.questionstatus,
+          comments: [comment]
+        };
+        result.questions.push(newQuestion);
+      } else {
+        // If question exists, add comment to its comments array
+        existingQuestion.comments.push(comment);
+      }
+    });
+    return result;
+
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch fieldwork comments.');
   }
 }

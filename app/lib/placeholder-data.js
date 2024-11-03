@@ -180,9 +180,66 @@ const revenue = [
   { month: 'Dec', revenue: 4800 },
 ];
 
+const fieldwork_comment_groups = [
+  {
+    research_id: 1,
+    comment_group_type: 1,
+    comment_group_name: 'Q1',
+    is_internal: true,
+    status: 1,
+    created_user: 1,
+    modified_user: 1,
+    created: '2024-03-23 08:00:00',
+    modified: '2024-03-23 08:00:00'
+  },
+  {
+    research_id: 2,
+    comment_group_type: 2,
+    comment_group_name: 'Q2',
+    is_internal: false,
+    status: 1,
+    created_user: 2,
+    modified_user: 2,
+    created: '2024-03-22 10:00:00',
+    modified: '2024-03-22 10:00:00'
+  },
+];
+
+const fieldwork_comments = [
+  {
+    fieldwork_comment_group_id: 1,
+    user_name: 'Aayushma',
+    status: 1,
+    comment: 'Comment 1 for Q1',
+    created_user: 1,
+    created: '2024-03-23 08:00:00',
+    modified: '2024-03-23 08:00:00'
+  },
+  {
+    fieldwork_comment_group_id: 1,
+    user_name: 'Rohito',
+    status: 1,
+    comment: 'Comment 2 for  Q1',
+    created_user: 2,
+    created: '2024-03-22 10:00:00',
+    modified: '2024-03-22 10:00:00'
+  },
+  {
+    fieldwork_comment_group_id: 2,
+    user_name: 'Mohito',
+    status: 1,
+    comment: 'Comment 1 for  Q2',
+    created_user: 3,
+    created: '2024-03-21 15:00:00',
+    modified: '2024-03-21 15:00:00'
+  },
+];
+
 module.exports = {
   users,
   customers,
   invoices,
   revenue,
+  fieldwork_comment_groups,
+  fieldwork_comments,
 };
